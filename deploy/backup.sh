@@ -3,7 +3,8 @@
 # Briefly stops the API to copy a consistent SQLite data directory, including key.
 set -Eeuo pipefail
 umask 077
-ledger_project_dir="${LEDGER_PROJECT_DIR:-/opt/card-tally}"
+ledger_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+ledger_project_dir="${LEDGER_PROJECT_DIR:-$(dirname -- "$ledger_script_dir")}"
 ledger_backup_dir="${LEDGER_BACKUP_DIR:-/var/backups/card-tally}"
 install -d -m 0700 "$ledger_backup_dir"
 exec 9>"$ledger_backup_dir/.backup.lock"
@@ -19,9 +20,10 @@ trap cleanup EXIT
 # Require an already running service; do not unexpectedly start a stopped deployment.
 ledger_container="$(docker compose ps -q --status running api)"
 test -n "$ledger_container"
+test -f ./data/ledger.sqlite
 ledger_restart=true
 docker compose stop api
-docker compose cp api:/data/. "$ledger_temp_dir/"
+cp -a -- ./data/. "$ledger_temp_dir/"
 docker compose start api
 ledger_restart=false
 ledger_integrity="$(sqlite3 "$ledger_temp_dir/ledger.sqlite" 'PRAGMA integrity_check;')"

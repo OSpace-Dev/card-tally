@@ -138,11 +138,13 @@ npm run test:e2e
 ```bash
 # 前端在本机构建，将 dist/ 内容上传到 Nginx 网站目录
 npm run build
-# 后端在服务器启动，数据保存在 card-tally-data 命名卷
+# 后端在服务器启动，数据保存在 compose.yaml 同目录的 ./data
+# Linux 首次启动前创建目录并赋予容器用户权限
+sudo install -d -o 1000 -g 1000 -m 0700 ./data
 docker compose up -d --build
 ```
 
-Nginx 的 `/api/` 代理到 `127.0.0.1:3001`，页面路由使用 `try_files $uri $uri/ /index.html`。Docker 容器仅运行后端。以下 `npm start` / `start:lan` 仍可用于本机体验与开发。
+Nginx 的 `/api/` 代理到 `127.0.0.1:3001`，页面路由使用 `try_files $uri $uri/ /index.html`。Docker 容器仅运行后端。Nginx 与 Docker 同机时，局域网访问 Nginx 的 80/443 端口即可，不需要开放 API 端口；Nginx 跨主机时，可在 `.env` 设置 `API_BIND_ADDRESS=0.0.0.0`，并将代理目标改成 API 主机实际 IP。完整前后端 Nginx 配置见 [部署模板](deploy/card-tally.nginx.conf)。以下 `npm start` / `start:lan` 仍可用于本机体验与开发。
 
 | 配置项 | 默认值 | 用途 |
 | --- | --- | --- |
@@ -151,6 +153,8 @@ Nginx 的 `/api/` 代理到 `127.0.0.1:3001`，页面路由使用 `try_files $ur
 | `DATA_DIR` | 项目下 `data` | 数据目录，建议使用绝对路径 |
 | `ACCESS_KEY` | 从数据目录自动生成/读取 | 自定义密钥，至少 16 字符，设置后优先于密钥文件 |
 | `SERVE_STATIC` | 默认启用，Docker 为 `false` | 是否由后端提供 dist 静态文件 |
+| `API_BIND_ADDRESS` | `127.0.0.1` | Compose 宿主机端口绑定，跨主机代理可设置实际局域网 IP 或 `0.0.0.0` |
+| `API_PORT` | `3001` | Compose 发布到宿主机的 API 端口 |
 | `PLAYWRIGHT_CHANNEL` | 未设置 | 浏览器测试渠道，如 `msedge` |
 
 PowerShell 示例：
@@ -163,7 +167,7 @@ npm run start:lan
 
 日常本机或可信家庭局域网使用即可。若部署到公网，使用 HTTPS 反向代理，服务绑定回环地址，保管访问密钥；HTTP 不加密传输。当前是共享密钥的单人/家庭账本，没有独立用户权限或多租户隔离。数据库文件未加密，应依靠主机账户和磁盘权限保护。
 
-服务从项目绝对路径定位数据库。本机运行时可以同时提供 `dist/`；设置 `SERVE_STATIC=false` 时关闭后端静态文件服务（Docker 默认关闭）。公网持久化数据位于 Docker 卷中，更新容器无需复制数据库。
+服务从项目绝对路径定位数据库。本机运行时可以同时提供 `dist/`；设置 `SERVE_STATIC=false` 时关闭后端静态文件服务（Docker 默认关闭）。公网数据通过目录绑定保存在部署目录的 `./data`，更新容器无需复制数据库。
 
 ## 目录
 
@@ -182,7 +186,7 @@ server/
   app.js                     REST API、SQLite 初始化、统计
   index.js                   启动、密钥及数据目录
 Dockerfile                   仅后端的生产镜像
-compose.yaml                 API 容器与持久化数据库卷
+compose.yaml                 API 容器与 ./data 目录绑定
 tests/                       API 与浏览器测试
 docs/                        数据与接口、测试文档
 data/                        首次运行自动创建，不纳入版本控制
