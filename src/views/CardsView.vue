@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import "element-plus/es/components/message-box/style/css";
 import {
   Plus,
   CreditCard,

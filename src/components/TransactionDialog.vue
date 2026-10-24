@@ -51,13 +51,17 @@ async function saveTransaction() {
 import { ref, watch } from "vue";
 import NumericKeypad from "./NumericKeypad.vue";
 const quick = ref(false);
-watch(transactionOpen, (open) => {
-  if (!open) return;
-  quick.value =
-    !editingTransaction.value &&
-    window.matchMedia("(max-width: 767px)").matches;
-  if (quick.value) transaction.category = "其他消费";
-});
+watch(
+  transactionOpen,
+  (open) => {
+    if (!open) return;
+    quick.value =
+      !editingTransaction.value &&
+      window.matchMedia("(max-width: 767px)").matches;
+    if (quick.value) transaction.category = "其他消费";
+  },
+  { immediate: true },
+);
 import { type FormInstance, type FormRules } from "element-plus";
 const transactionForm = ref<FormInstance>();
 const amountRule = {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import "element-plus/es/components/message-box/style/css";
 import { Download, EditPen, Delete, Wallet } from "@element-plus/icons-vue";
 import { useLedger } from "../composables/useLedger";
 const {
@@ -151,13 +152,13 @@ async function deleteRecord(row: Transaction) {
           ><button
             class="icon-button small"
             aria-label="编辑记录"
-            @click="openTransaction(row)"
+            @click="openTransaction(row as Transaction)"
           >
             <el-icon><EditPen /></el-icon></button
           ><button
             class="icon-button small delete-button"
             aria-label="删除记录"
-            @click="deleteRecord(row)"
+            @click="deleteRecord(row as Transaction)"
           >
             <el-icon><Delete /></el-icon></button></template></el-table-column
     ></el-table>

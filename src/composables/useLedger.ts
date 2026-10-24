@@ -57,6 +57,7 @@ export function createLedger() {
     report = ref<Report | null>(null),
     rows = ref<Transaction[]>([]),
     total = ref(0);
+  const annualRevision = ref(0);
   const month = ref(localDate().slice(0, 7)),
     loading = ref(false),
     error = ref(""),
@@ -156,13 +157,17 @@ export function createLedger() {
     }
   }
   async function initialize(remember?: boolean) {
-    const session = await request<{ categories: string[] }>("/session");
+    const [session, initialCards] = await Promise.all([
+      request<{ categories: string[] }>("/session"),
+      request<Card[]>("/cards"),
+    ]);
     if (remember !== undefined && !setKey(loginKey.value.trim(), remember)) {
       ElMessage.warning("浏览器未允许保存登录状态，本次仍可使用账本。");
     }
     categories.value = session.categories;
+    cards.value = initialCards;
     authenticated.value = true;
-    await loadCards();
+    booting.value = false;
     await loadData();
   }
   async function loadCards() {
@@ -172,19 +177,30 @@ export function createLedger() {
   async function loadData() {
     if (!authenticated.value || !month.value) return;
     const version = ++loadVersion;
-    loading.value = true;
     error.value = "";
+    loading.value = false;
+    // Each page fetches only what it displays; the yearly page owns its request.
+    if (active.value === "card-statistics") {
+      annualRevision.value++;
+      return;
+    }
+    if (active.value === "cards") return;
+    loading.value = true;
+    const isOverview = active.value === "overview";
+    if (isOverview && report.value?.month !== month.value) report.value = null;
     try {
-      const [r, records] = await Promise.all([
-        request<Report>("/report?month=" + month.value),
-        request<{ rows: Transaction[]; total: number }>(
+      if (isOverview) {
+        const result = await request<Report>("/report?month=" + month.value);
+        if (version !== loadVersion || !authenticated.value) return;
+        report.value = result;
+      } else {
+        const result = await request<{ rows: Transaction[]; total: number }>(
           "/transactions?" + query(),
-        ),
-      ]);
-      if (version !== loadVersion || !authenticated.value) return;
-      report.value = r;
-      rows.value = records.rows;
-      total.value = records.total;
+        );
+        if (version !== loadVersion || !authenticated.value) return;
+        rows.value = result.rows;
+        total.value = result.total;
+      }
     } catch (e) {
       if (version === loadVersion)
         error.value = e instanceof Error ? e.message : "加载失败";
@@ -209,9 +225,9 @@ export function createLedger() {
     const next = d.toISOString().slice(0, 7);
     if (next >= "1900-01" && next <= "9998-12") month.value = next;
   }
-  watch(month, () => {
-    page.value = 1;
-    loadData();
+  watch([month, active], ([currentMonth], [previousMonth]) => {
+    if (currentMonth !== previousMonth) page.value = 1;
+    void loadData();
   });
   function search() {
     page.value = 1;
@@ -299,10 +315,15 @@ export function createLedger() {
     unauthorized();
   }
   function showCardRecords(id: number) {
-    resetFilters();
-    filters.card_id = String(id);
-    active.value = "records";
-    search();
+    Object.assign(filters, {
+      card_id: String(id),
+      type: "",
+      category: "",
+      q: "",
+    });
+    page.value = 1;
+    if (active.value === "records") void loadData();
+    else active.value = "records";
   }
   async function restoreSession() {
     booting.value = true;
@@ -331,6 +352,7 @@ export function createLedger() {
     active,
     authenticated,
     cards,
+    annualRevision,
     month,
     filters,
     saving,

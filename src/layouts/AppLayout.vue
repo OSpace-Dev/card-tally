@@ -167,7 +167,7 @@ const {
             >。</template
           ></el-alert
         >
-        <div v-if="loading && !report" class="panel">
+        <div v-if="loading && active === 'overview' && !report" class="panel">
           <el-skeleton :rows="8" animated />
         </div>
         <router-view />

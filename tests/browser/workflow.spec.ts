@@ -78,13 +78,18 @@ test('电脑与手机共用账本：建卡、记账、退款、预算、筛选�
   const downloadPromise = page.waitForEvent('download')
   await page.getByRole('button', { name: '导出 CSV' }).click()
   expect((await downloadPromise).suggestedFilename()).toContain('信用卡明细')
+  await page.getByRole('button', { name: '删除记录', exact: true }).click()
+  await expect(page.getByRole('dialog', { name: '删除记录' })).toBeVisible()
+  await page.getByRole('button', { name: '取消', exact: true }).click()
+  await expect(page.locator('.desktop-table tbody tr')).toHaveCount(1)
 
   for (const width of [375, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 1000 })
     for (const target of ['overview', 'card-statistics', 'records', 'cards']) {
       const name = { overview: '月度总览', 'card-statistics': '各卡月度统计', records: '消费明细', cards: '我的信用卡' }[target]!
       await page.locator(width < 768 ? '.mobile-nav' : '.sidebar').getByRole('button', { name }).click()
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+      const overflow = await page.evaluate(() => ({ width: window.innerWidth, scrollWidth: document.documentElement.scrollWidth, elements: [...document.querySelectorAll('body *')].filter(el => el.getBoundingClientRect().right > window.innerWidth + 1 && getComputedStyle(el).position !== 'absolute').slice(0, 15).map(el => ({ tag: el.tagName, class: el.className, right: el.getBoundingClientRect().right })) }))
+      expect(overflow.scrollWidth, JSON.stringify({ width, target, ...overflow })).toBeLessThanOrEqual(overflow.width)
     }
   }
   await page.locator('.sidebar').getByRole('button', { name: '各卡月度统计' }).click()

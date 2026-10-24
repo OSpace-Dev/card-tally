@@ -15,7 +15,7 @@ type CardYear = Totals & {
 };
 type CardReport = { year: number; months: string[]; cards: CardYear[] };
 type Metric = keyof Totals;
-const { month, report, showCardRecords } = useLedger();
+const { month, annualRevision, showCardRecords } = useLedger();
 const year = computed(() => month.value.slice(0, 4));
 const data = ref<CardReport | null>(null),
   busy = ref(false),
@@ -61,7 +61,7 @@ async function load() {
     if (version === current) busy.value = false;
   }
 }
-watch([year, report], load, { immediate: true });
+watch([year, annualRevision], load, { immediate: true });
 onUnmounted(() => {
   version++;
 });

@@ -88,12 +88,12 @@ export async function exportCsv(query: string) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-export const money = (cents: number) =>
-  new Intl.NumberFormat("zh-CN", {
-    style: "currency",
-    currency: "CNY",
-    minimumFractionDigits: 2,
-  }).format(cents / 100);
+const currencyFormatter = new Intl.NumberFormat("zh-CN", {
+  style: "currency",
+  currency: "CNY",
+  minimumFractionDigits: 2,
+});
+export const money = (cents: number) => currencyFormatter.format(cents / 100);
 export function localDate() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;

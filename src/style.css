@@ -336,7 +336,7 @@ button .el-icon {
   align-items: center;
   gap: 4px;
 }
-.month-controls .el-date-editor {
+.month-controls .el-date-editor.el-input {
   width: 160px;
 }
 .month-controls .el-input__wrapper {
@@ -1571,7 +1571,7 @@ button .el-icon {
   .month-controls {
     gap: 0;
   }
-  .month-controls .el-date-editor {
+  .month-controls .el-date-editor.el-input {
     width: 142px;
   }
   .month-controls .el-input__inner {
@@ -2080,7 +2080,7 @@ button .el-icon {
   .card-total-amount small {
     max-width: 115px;
   }
-  .month-controls .el-date-editor {
+  .month-controls .el-date-editor.el-input {
     width: 130px;
   }
   .page-heading > .el-button {
