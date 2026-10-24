@@ -14,16 +14,20 @@ const {
 import { request } from "../api";
 import { ElMessage } from "element-plus";
 async function saveBudget() {
-  if (budget.amount && !(await budgetForm.value?.validate().catch(() => false)))
-    return;
+  if (saving.value) return;
   saving.value = true;
   try {
+    if (
+      budget.amount &&
+      !(await budgetForm.value?.validate().catch(() => false))
+    )
+      return;
     await request("/budget", {
       method: "PUT",
       body: JSON.stringify({ month: month.value, amount: budget.amount }),
     });
-    budgetOpen.value = false;
     await loadData();
+    budgetOpen.value = false;
     ElMessage.success("月度预算已更新");
   } catch (e) {
     notifyError(e);
@@ -63,6 +67,7 @@ const amountRule = {
       ref="budgetForm"
       :model="budget"
       :rules="{ amount: [amountRule] }"
+      :disabled="saving"
       label-position="top"
       @submit.prevent="saveBudget"
       ><el-form-item label="本月预算金额（元）" prop="amount"

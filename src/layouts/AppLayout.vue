@@ -19,6 +19,7 @@ const {
   report,
   rows,
   loading,
+  formBusy,
   error,
   page,
   loadData,
@@ -107,6 +108,7 @@ const {
             type="primary"
             size="large"
             :icon="Plus"
+            :disabled="formBusy"
             @click="active === 'cards' ? openCard() : openTransaction()"
             >{{ active === "cards" ? "添加信用卡" : "记一笔" }}</el-button
           >

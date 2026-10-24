@@ -18,11 +18,12 @@ const {
 import { request } from "../api";
 import { ElMessage } from "element-plus";
 async function saveTransaction() {
-  if (transaction.amount.endsWith("."))
-    transaction.amount = transaction.amount.slice(0, -1);
-  if (!(await transactionForm.value?.validate().catch(() => false))) return;
+  if (saving.value) return;
   saving.value = true;
   try {
+    if (transaction.amount.endsWith("."))
+      transaction.amount = transaction.amount.slice(0, -1);
+    if (!(await transactionForm.value?.validate().catch(() => false))) return;
     await request(
       editingTransaction.value
         ? `/transactions/${editingTransaction.value}`
@@ -32,7 +33,6 @@ async function saveTransaction() {
         body: JSON.stringify(transaction),
       },
     );
-    transactionOpen.value = false;
     ElMessage.success(
       editingTransaction.value ? "记录已更新" : "记下了，又是一笔清晰的账",
     );
@@ -42,6 +42,7 @@ async function saveTransaction() {
       page.value = 1;
       await loadData();
     }
+    transactionOpen.value = false;
   } catch (e) {
     notifyError(e);
   } finally {
@@ -87,7 +88,9 @@ const transactionRules: FormRules = {
 <template>
   <el-dialog
     v-model="transactionOpen"
-    :title="editingTransaction ? '编辑记账记录' : '记下新的一笔'"
+    :title="
+      editingTransaction ? '编辑记账记录' : quick ? '记一笔' : '记下新的一笔'
+    "
     width="520px"
     :class="{ 'quick-entry-dialog': quick }"
     class="responsive-dialog"
@@ -101,6 +104,7 @@ const transactionRules: FormRules = {
       ref="transactionForm"
       :model="transaction"
       :rules="transactionRules"
+      :disabled="saving"
       label-position="top"
       @submit.prevent="saveTransaction"
       ><div class="entry-mode-bar">
@@ -122,18 +126,19 @@ const transactionRules: FormRules = {
           ><el-radio-button label="消费" value="expense" /><el-radio-button
             label="退款"
             value="refund" /></el-radio-group></el-form-item
-      ><el-form-item label="金额（元）" prop="amount"
+      ><el-form-item :label="quick ? undefined : '金额（元）'" prop="amount"
         ><el-input
           v-model.trim="transaction.amount"
           :readonly="quick"
           :inputmode="quick ? 'none' : 'decimal'"
           placeholder="0.00"
+          aria-label="金额（元）"
           size="large"
           maxlength="11"
           class="amount-input"
           ><template #prefix>¥</template></el-input
         ></el-form-item
-      ><el-form-item label="信用卡" prop="card_id"
+      ><el-form-item :label="quick ? undefined : '信用卡'" prop="card_id"
         ><div
           v-if="quick"
           class="quick-card-options"
@@ -145,14 +150,15 @@ const transactionRules: FormRules = {
             :key="item.id"
             type="button"
             :disabled="saving"
+            :title="item.name"
+            :aria-label="`${item.bank} · ${item.last4} · ${item.name}`"
             :aria-pressed="transaction.card_id === item.id"
             :class="{ chosen: transaction.card_id === item.id }"
             @click="transaction.card_id = item.id"
           >
             <i :style="{ background: item.color }"></i
             ><span
-              >{{ item.bank }} · {{ item.last4
-              }}<small>{{ item.name }}</small></span
+              >{{ item.bank }} <strong>{{ item.last4 }}</strong></span
             >
           </button>
         </div>

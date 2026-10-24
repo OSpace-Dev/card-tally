@@ -70,6 +70,13 @@ export function createLedger() {
     budgetOpen = ref(false),
     editingTransaction = ref<number | null>(null),
     editingCard = ref<number | null>(null);
+  const formBusy = computed(
+    () =>
+      saving.value ||
+      transactionOpen.value ||
+      cardOpen.value ||
+      budgetOpen.value,
+  );
   const transaction = reactive({
     card_id: undefined as number | undefined,
     type: "expense" as "expense" | "refund",
@@ -238,6 +245,7 @@ export function createLedger() {
     search();
   }
   function openTransaction(row?: Transaction) {
+    if (formBusy.value) return;
     if (!cards.value.length) {
       ElMessage.info("请先添加一张信用卡");
       active.value = "cards";
@@ -274,6 +282,7 @@ export function createLedger() {
     transactionOpen.value = true;
   }
   function openCard(item?: Card) {
+    if (formBusy.value) return;
     editingCard.value = item?.id ?? null;
     Object.assign(
       card,
@@ -294,6 +303,7 @@ export function createLedger() {
     cardOpen.value = true;
   }
   function openBudget() {
+    if (formBusy.value) return;
     budget.amount = report.value?.budget
       ? (report.value.budget / 100).toFixed(2)
       : "";
@@ -355,6 +365,7 @@ export function createLedger() {
     annualRevision,
     month,
     filters,
+    formBusy,
     saving,
     transactionOpen,
     transaction,

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useLedger } from "../composables/useLedger";
+import { useMobile } from "../composables/useMobile";
+const mobile = useMobile();
 const {
   saving,
   card,
@@ -16,9 +18,11 @@ const {
 import { request } from "../api";
 import { ElMessage } from "element-plus";
 async function saveCard() {
-  if (!(await cardForm.value?.validate().catch(() => false))) return;
+  if (saving.value) return;
   saving.value = true;
+  let committed = false;
   try {
+    if (!(await cardForm.value?.validate().catch(() => false))) return;
     await request(
       editingCard.value ? `/cards/${editingCard.value}` : "/cards",
       {
@@ -26,12 +30,16 @@ async function saveCard() {
         body: JSON.stringify(card),
       },
     );
-    cardOpen.value = false;
+    committed = true;
     await loadCards();
     await loadData();
+    cardOpen.value = false;
     ElMessage.success("卡片已保存");
   } catch (e) {
-    notifyError(e);
+    if (committed) {
+      cardOpen.value = false;
+      ElMessage.warning("卡片已保存，列表刷新失败，请刷新页面查看。");
+    } else notifyError(e);
   } finally {
     saving.value = false;
   }
@@ -39,6 +47,7 @@ async function saveCard() {
 import { ref } from "vue";
 import { type FormInstance, type FormRules } from "element-plus";
 const cardForm = ref<FormInstance>();
+const manualBank = ref(false);
 const cardRules: FormRules = {
   bank: [
     {
@@ -83,15 +92,25 @@ const cardRules: FormRules = {
       ref="cardForm"
       :model="card"
       :rules="cardRules"
+      :disabled="saving"
       label-position="top"
       @submit.prevent="saveCard"
       ><el-form-item label="银行名称" prop="bank"
-        ><el-select
+        ><el-input
+          v-if="mobile && manualBank"
+          v-model.trim="card.bank"
+          maxlength="30"
+          placeholder="输入银行名称"
+          aria-label="银行名称"
+        />
+        <el-select
+          v-else
           v-model="card.bank"
-          filterable
-          allow-create
+          :filterable="!mobile"
+          :allow-create="!mobile"
+          :popper-class="mobile ? 'mobile-bank-dropdown' : ''"
           default-first-option
-          placeholder="选择银行，或输入其他银行名称"
+          :placeholder="mobile ? '选择银行' : '选择银行，或输入其他银行名称'"
           aria-label="银行名称"
           ><el-option-group
             v-for="group in bankGroups"
@@ -102,9 +121,21 @@ const cardRules: FormRules = {
               :key="bank"
               :label="bank"
               :value="bank" /></el-option-group></el-select
-        ><span class="bank-select-hint"
-          >可搜索银行；未收录的银行可输入名称后选中。</span
-        ></el-form-item
+        ><button
+          v-if="mobile"
+          type="button"
+          class="text-button bank-input-toggle"
+          :disabled="saving"
+          @click="manualBank = !manualBank"
+        >
+          {{ manualBank ? "返回银行列表" : "未找到？手动输入银行" }}</button
+        ><span class="bank-select-hint">{{
+          mobile
+            ? manualBank
+              ? "输入完整银行名称，最多 30 个字符。"
+              : "点选银行即可，无需输入。"
+            : "可搜索银行；未收录的银行可输入名称后选中。"
+        }}</span></el-form-item
       ><el-form-item label="卡片名称" prop="name"
         ><el-input
           v-model.trim="card.name"
@@ -122,6 +153,7 @@ const cardRules: FormRules = {
             v-for="color in colors"
             :key="color"
             type="button"
+            :disabled="saving"
             :style="{ background: color }"
             :class="{ chosen: card.color === color }"
             :aria-label="`选择颜色 ${color}`"

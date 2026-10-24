@@ -1804,10 +1804,23 @@ button .el-icon {
     padding: 0 8px;
   }
   .form-two-columns .el-input__inner {
-    font-size: 13px;
+    font-size: 16px;
+  }
+  .dialog-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    gap: 10px;
+    background: #fff;
+    padding-top: 12px;
   }
   .dialog-actions .el-button {
-    font-size: 14px;
+    min-height: 52px;
+    height: 52px;
+    font-size: 16px;
+  }
+  .dialog-actions .el-button + .el-button {
+    margin-left: 0;
   }
   .form-hint {
     font-size: 11px;
@@ -1844,7 +1857,7 @@ button .el-icon {
     font-size: 12px;
   }
   .filter-bar .el-input__inner {
-    font-size: 14px;
+    font-size: 16px;
   }
   .filter-bar .el-button {
     font-size: 13px;
@@ -2257,7 +2270,7 @@ button .el-icon {
   gap: 8px;
   overflow-x: auto;
   width: 100%;
-  padding: 2px 2px 7px;
+  padding: 2px 2px 4px;
 }
 .quick-card-options button {
   display: flex;
@@ -2268,10 +2281,12 @@ button .el-icon {
   border: 1px solid #dfe8e1;
   border-radius: 9px;
   background: #fff;
-  padding: 11px 13px;
+  padding: 7px 11px;
   color: #3d594b;
-  min-height: 56px;
-  font-size: 12px;
+  min-height: 44px;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 .quick-card-options button.chosen {
   border-color: #16665b;
@@ -2279,15 +2294,14 @@ button .el-icon {
   box-shadow: 0 0 0 1px #16665b;
 }
 .quick-card-options i {
-  width: 5px;
-  height: 27px;
+  width: 4px;
+  height: 20px;
   border-radius: 3px;
 }
-.quick-card-options small {
-  display: block;
-  color: #657570;
-  font-size: 10px;
-  margin-top: 4px;
+.quick-card-options strong {
+  margin-left: 5px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
 }
 .numeric-keypad {
   display: grid;
@@ -2375,14 +2389,20 @@ button .el-icon {
     gap: 10px 17px;
   }
   .quick-entry-dialog.responsive-dialog {
-    margin: 2vh auto !important;
-    padding: 18px 18px 20px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 18px 18px max(18px, env(safe-area-inset-bottom));
+    border-radius: 20px 20px 0 0;
   }
   .quick-entry-dialog .el-dialog__body {
     padding-top: 2px;
   }
   .quick-entry-dialog .el-form-item {
-    margin-bottom: 14px;
+    margin-bottom: 10px;
   }
   .quick-entry-dialog .entry-mode-bar {
     margin-bottom: 5px;
@@ -2392,8 +2412,15 @@ button .el-icon {
     height: 55px;
   }
   .quick-entry-dialog .dialog-actions {
-    margin-top: 14px;
-    padding-top: 14px;
+    margin-top: 10px;
+    padding-top: 12px;
+  }
+  .quick-entry-dialog .dialog-actions .el-button {
+    height: 56px;
+    min-height: 56px;
+  }
+  .quick-entry-dialog .dialog-actions .el-button:not(.el-button--primary) {
+    min-width: 84px;
   }
   .quick-entry-dialog .el-form-item__label {
     padding-bottom: 5px;
@@ -2500,5 +2527,44 @@ html {
 @media (display-mode: standalone) {
   body {
     overscroll-behavior-y: none;
+  }
+}
+
+/* iOS focuses text controls without auto-zoom when their actual font is >=16px.
+   Keep browser pinch zoom available; do not restrict viewport scaling. */
+@media (max-width: 767px) {
+  .el-input input.el-input__inner,
+  .el-select input.el-select__input,
+  .el-textarea textarea.el-textarea__inner,
+  select {
+    font-size: 16px !important;
+  }
+  .amount-input input.el-input__inner {
+    font-size: 30px !important;
+  }
+  .quick-entry-dialog .amount-input input.el-input__inner {
+    font-size: 36px !important;
+  }
+  .quick-entry-dialog .amount-input .el-input__wrapper {
+    box-shadow: none;
+    background: #f3f7f4;
+    border-radius: 12px;
+    padding: 0 14px;
+  }
+  .quick-entry-dialog .quick-card-options {
+    scrollbar-width: thin;
+  }
+  .quick-entry-dialog .entry-mode-bar {
+    gap: 8px;
+  }
+  .quick-entry-dialog .entry-mode-bar > span {
+    min-width: 0;
+    font-size: 10px;
+  }
+  .mobile-bank-dropdown .el-select-dropdown__wrap {
+    max-height: min(38dvh, 260px);
+  }
+  .bank-input-toggle {
+    font-size: 12px;
   }
 }
