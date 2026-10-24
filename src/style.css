@@ -2402,3 +2402,103 @@ button .el-icon {
     font-size: 9px;
   }
 }
+
+/* Installed web app and iOS safe areas. */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+.remember-device {
+  margin: -4px 0 15px;
+  height: 32px;
+}
+.remember-device .el-checkbox__label {
+  font-size: 12px;
+}
+.install-guide-button {
+  gap: 6px;
+}
+.login-box > .install-guide-button {
+  margin-top: 12px;
+}
+.page-footer {
+  align-items: center;
+  flex-wrap: wrap;
+}
+.install-guide-icon {
+  border-radius: 15px;
+  display: block;
+  margin: 0 auto 20px;
+}
+.install-steps {
+  margin: 0;
+  padding-left: 23px;
+  color: #3d594b;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.install-steps li {
+  padding: 5px 0;
+}
+.install-guide-dialog .full-width {
+  margin-top: 16px;
+}
+.connection-screen {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.connection-screen .panel {
+  max-width: 440px;
+}
+.connection-screen h1 {
+  font-size: 24px;
+}
+.connection-screen p {
+  color: #657570;
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 14px 0;
+}
+@media (max-width: 767px) {
+  .topbar {
+    height: calc(59px + env(safe-area-inset-top));
+    padding-top: env(safe-area-inset-top);
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+  .main-content {
+    padding-left: max(18px, env(safe-area-inset-left));
+    padding-right: max(18px, env(safe-area-inset-right));
+  }
+  .mobile-nav {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  .login-story {
+    padding-top: calc(29px + env(safe-area-inset-top));
+    padding-left: max(28px, env(safe-area-inset-left));
+    padding-right: max(28px, env(safe-area-inset-right));
+  }
+  .login-panel {
+    padding-bottom: calc(45px + env(safe-area-inset-bottom));
+  }
+  .page-footer .install-guide-button {
+    font-size: 11px;
+  }
+  .el-overlay-dialog {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .responsive-dialog {
+    max-height: calc(
+      100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 28px
+    );
+    overflow-y: auto;
+  }
+}
+@media (display-mode: standalone) {
+  body {
+    overscroll-behavior-y: none;
+  }
+}

@@ -50,6 +50,8 @@ export function createLedger() {
     booting = ref(true),
     loginKey = ref(""),
     loggingIn = ref(false);
+  const rememberDevice = ref(true),
+    reconnectError = ref("");
   const cards = ref<Card[]>([]),
     categories = ref<string[]>([]),
     report = ref<Report | null>(null),
@@ -123,6 +125,8 @@ export function createLedger() {
     ElMessage.error(e instanceof Error ? e.message : "操作失败");
   }
   function unauthorized() {
+    reconnectError.value = "";
+    loginKey.value = "";
     loadVersion++;
     loading.value = false;
     authenticated.value = false;
@@ -142,17 +146,20 @@ export function createLedger() {
     loggingIn.value = true;
     setKey(loginKey.value.trim());
     try {
-      await initialize();
+      await initialize(rememberDevice.value);
       loginKey.value = "";
     } catch (e) {
-      setKey("");
+      if (!authenticated.value) setKey("");
       notifyError(e);
     } finally {
       loggingIn.value = false;
     }
   }
-  async function initialize() {
+  async function initialize(remember?: boolean) {
     const session = await request<{ categories: string[] }>("/session");
+    if (remember !== undefined && !setKey(loginKey.value.trim(), remember)) {
+      ElMessage.warning("浏览器未允许保存登录状态，本次仍可使用账本。");
+    }
     categories.value = session.categories;
     authenticated.value = true;
     await loadCards();
@@ -297,16 +304,23 @@ export function createLedger() {
     active.value = "records";
     search();
   }
-  onMounted(async () => {
-    window.addEventListener("ledger-unauthorized", unauthorized);
-    if (hasKey()) {
-      try {
-        await initialize();
-      } catch (e) {
-        notifyError(e);
-      }
+  async function restoreSession() {
+    booting.value = true;
+    reconnectError.value = "";
+    try {
+      if (hasKey()) await initialize();
+    } catch (e) {
+      if (hasKey() && !authenticated.value)
+        reconnectError.value =
+          e instanceof Error ? e.message : "暂时无法连接账本";
+      else notifyError(e);
+    } finally {
+      booting.value = false;
     }
-    booting.value = false;
+  }
+  onMounted(() => {
+    window.addEventListener("ledger-unauthorized", unauthorized);
+    void restoreSession();
   });
   onUnmounted(() =>
     window.removeEventListener("ledger-unauthorized", unauthorized),
@@ -332,6 +346,9 @@ export function createLedger() {
     comparison,
     booting,
     loginKey,
+    rememberDevice,
+    reconnectError,
+    restoreSession,
     loggingIn,
     categories,
     report,

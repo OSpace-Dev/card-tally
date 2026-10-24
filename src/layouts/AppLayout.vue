@@ -8,6 +8,7 @@ import {
   Refresh,
   Lock,
 } from "@element-plus/icons-vue";
+import InstallGuide from "../components/InstallGuide.vue";
 import { useLedger } from "../composables/useLedger";
 const {
   nav,
@@ -174,7 +175,7 @@ const {
           <span
             >卡有数
             <span class="footer-divider">/</span> 让每一笔，都有数。</span
-          ><span>私人账本 · 数据由你保管</span>
+          ><InstallGuide /><span>私人账本 · 数据由你保管</span>
         </footer>
       </main>
     </div>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ArrowRight, Wallet, Lock } from "@element-plus/icons-vue";
 import { useLedger } from "../composables/useLedger";
-const { loginKey, loggingIn, loading, login } = useLedger();
+import InstallGuide from "../components/InstallGuide.vue";
+const { loginKey, loggingIn, rememberDevice, login } = useLedger();
 </script>
 
 <template>
@@ -38,6 +39,8 @@ const { loginKey, loggingIn, loading, login } = useLedger();
               placeholder="粘贴访问密钥"
               size="large"
               autocomplete="current-password" /></el-form-item
+          ><el-checkbox v-model="rememberDevice" class="remember-device"
+            >记住此设备，下次自动登录</el-checkbox
           ><el-button
             type="primary"
             size="large"
@@ -49,8 +52,9 @@ const { loginKey, loggingIn, loading, login } = useLedger();
         <div class="login-hint">
           首次使用？在项目
           <code>data/access-key.txt</code>
-          文件中获取密钥。密钥仅保存在本标签页会话中。
+          文件中获取密钥。仅在自己的设备上勾选“记住此设备”，锁定账本会清除保存的密钥。
         </div>
+        <InstallGuide />
       </div>
     </section>
   </main>

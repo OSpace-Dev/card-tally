@@ -1,3 +1,6 @@
+import { getKey, setKey } from "./auth";
+export { hasKey, setKey } from "./auth";
+
 export interface Card {
   id: number;
   bank: string;
@@ -43,29 +46,21 @@ export interface Report {
   daily: { date: string; net: number }[];
   trends: { month: string; expense: number; refund: number; net: number }[];
 }
-let key = sessionStorage.getItem("ledger-key") || "";
-export function setKey(value: string) {
-  key = value;
-  if (value) sessionStorage.setItem("ledger-key", value);
-  else sessionStorage.removeItem("ledger-key");
-}
-export function hasKey() {
-  return !!key;
-}
 export async function request<T>(
   url: string,
   options: RequestInit = {},
 ): Promise<T> {
+  const issuedKey = getKey();
   const response = await fetch("/api" + url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${key}`,
+      Authorization: `Bearer ${issuedKey}`,
       ...options.headers,
     },
   });
   if (!response.ok) {
-    if (response.status === 401) {
+    if (response.status === 401 && issuedKey === getKey()) {
       setKey("");
       window.dispatchEvent(new Event("ledger-unauthorized"));
     }
@@ -75,11 +70,12 @@ export async function request<T>(
   return response.json();
 }
 export async function exportCsv(query: string) {
+  const issuedKey = getKey();
   const response = await fetch("/api/export?" + query, {
-    headers: { Authorization: `Bearer ${key}` },
+    headers: { Authorization: `Bearer ${issuedKey}` },
   });
   if (!response.ok) {
-    if (response.status === 401) {
+    if (response.status === 401 && issuedKey === getKey()) {
       setKey("");
       window.dispatchEvent(new Event("ledger-unauthorized"));
     }

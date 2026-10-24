@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#16665b" />
+    <title>卡有数 · 暂时无法连接</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        background: #f5f7f6;
+        color: #253331;
+        font-family:
+          system-ui,
+          -apple-system,
+          "Microsoft YaHei",
+          sans-serif;
+        padding: calc(28px + env(safe-area-inset-top))
+          calc(24px + env(safe-area-inset-right))
+          calc(28px + env(safe-area-inset-bottom))
+          calc(24px + env(safe-area-inset-left));
+      }
+      main {
+        max-width: 360px;
+        text-align: center;
+      }
+      img {
+        width: 72px;
+        height: 72px;
+        border-radius: 18px;
+      }
+      h1 {
+        font-size: 23px;
+        margin: 24px 0 14px;
+      }
+      p {
+        font-size: 15px;
+        line-height: 1.8;
+        color: #53625f;
+      }
+      a {
+        display: inline-block;
+        padding: 14px 30px;
+        margin-top: 18px;
+        border-radius: 10px;
+        background: #16665b;
+        color: #fff;
+        text-decoration: none;
+      }
+      a:focus-visible {
+        outline: 3px solid #408e80;
+        outline-offset: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/icons/icon-192.png" alt="卡有数" />
+      <h1>暂时无法连接账本</h1>
+      <p>
+        请检查网络，或确认服务器正在运行。已记住的登录状态会保留；恢复连接后即可继续记账。
+      </p>
+      <a href="/overview">重新连接</a>
+      <p>记账和查看统计需要联网。</p>
+    </main>
+  </body>
+</html>
