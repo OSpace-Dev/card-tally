@@ -26,7 +26,7 @@ const idValue = (s) => { const n = Number(s); check(Number.isSafeInteger(n) && n
 const shiftMonth = (month, shift) => { const d = new Date(`${month}-01T00:00:00Z`); d.setUTCMonth(d.getUTCMonth() + shift); return d.toISOString().slice(0, 7) }
 
 export function createApp({ dbPath, accessKey, staticDir }) {
-  check(typeof accessKey === 'string' && accessKey.length >= 16, '访问密钥至少 16 位')
+  check(typeof accessKey === 'string' && accessKey.length >= 12, '访问密钥至少 12 位')
   const db = new DatabaseSync(dbPath)
   db.exec(`PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;
     CREATE TABLE IF NOT EXISTS cards (

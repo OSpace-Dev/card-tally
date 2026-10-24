@@ -28,6 +28,16 @@ test('精确转换金额，拒绝零、负数、科学计数法、多余小数',
   assert.equal(cents('0.01'), 1); assert.equal(cents('123.45'), 12345); assert.equal(cents('1.1'), 110)
   for (const amount of ['0', '-1', '1.001', '1e3', '100000000', '', null, {}]) assert.throws(() => cents(amount))
 })
+test('密钥至少 12 位：拒绝 11 位，接受 12 位及更长密钥', () => {
+  for (const length of [0, 11]) {
+    assert.throws(() => createApp({ dbPath: ':memory:', accessKey: randomBytes(12).toString('hex').slice(0, length) }), /访问密钥至少 12 位/)
+  }
+  for (const length of [12, 13]) {
+    const instance = createApp({ dbPath: ':memory:', accessKey: randomBytes(12).toString('hex').slice(0, length) })
+    instance.db.close()
+  }
+})
+
 test('API 必须带访问密钥，返回禁止缓存头', async () => {
   const denied = await api('/session', 'GET', undefined, false)
   assert.equal(denied.status, 401); assert.equal(denied.headers.get('cache-control'), 'no-store')
