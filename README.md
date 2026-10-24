@@ -41,7 +41,7 @@ npm start
 
 ```text
 data/
-  ledger.sqlite       实际账本数据库
+  card-tally.sqlite   实际账本数据库
   access-key.txt      自动生成的访问密钥
 ```
 
@@ -98,7 +98,7 @@ Windows 防火墙若询问 Node 网络访问，可允许**专用网络**。手�
 2. 将整个 `data` 文件夹复制到其他位置，例如 `backups/2026-03-31/data`。
 3. 再运行 `npm start` 或 `npm run start:lan`。
 
-复制整个目录能保留访问密钥；SQLite 若存在 `ledger.sqlite-wal`、`ledger.sqlite-shm` 文件，也应一并保存。不要在服务运行中仅复制主数据库文件，WAL 中可能还有最新记录。
+复制整个目录能保留访问密钥；SQLite 若存在 `card-tally.sqlite-wal`、`card-tally.sqlite-shm` 文件，也应一并保存。不要在服务运行中仅复制主数据库文件，WAL 中可能还有最新记录。
 
 恢复时先停止服务，备份当前 `data`，再用备份的 `data` 替换，重新启动。所有终端使用恢复后的访问密钥登录。
 

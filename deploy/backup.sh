@@ -20,19 +20,19 @@ trap cleanup EXIT
 # Require an already running service; do not unexpectedly start a stopped deployment.
 ledger_container="$(docker compose ps -q --status running api)"
 test -n "$ledger_container"
-test -f ./data/ledger.sqlite
+test -f ./data/card-tally.sqlite
 ledger_restart=true
 docker compose stop api
 cp -a -- ./data/. "$ledger_temp_dir/"
 docker compose start api
 ledger_restart=false
-ledger_integrity="$(sqlite3 "$ledger_temp_dir/ledger.sqlite" 'PRAGMA integrity_check;')"
+ledger_integrity="$(sqlite3 "$ledger_temp_dir/card-tally.sqlite" 'PRAGMA integrity_check;')"
 if [[ "$ledger_integrity" != 'ok' ]]; then
     echo 'Backup integrity check failed' >&2
     exit 1
 fi
-ledger_archive="$ledger_backup_dir/ledger-$(date -u +%Y%m%dT%H%M%S)-$$.tar.gz"
+ledger_archive="$ledger_backup_dir/card-tally-$(date -u +%Y%m%dT%H%M%S)-$$.tar.gz"
 tar -czf "$ledger_archive.partial" -C "$ledger_temp_dir" .
 mv -- "$ledger_archive.partial" "$ledger_archive"
-find "$ledger_backup_dir" -maxdepth 1 -type f -name 'ledger-*.tar.gz' -mtime +30 -delete
+find "$ledger_backup_dir" -maxdepth 1 -type f -name 'card-tally-*.tar.gz' -mtime +30 -delete
 printf 'Backup created: %s\n' "$ledger_archive"
