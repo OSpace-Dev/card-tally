@@ -20,6 +20,11 @@ export default createRouter({
           component: () => import("./views/CardStatisticsView.vue"),
         },
         {
+          path: "card-statistics/:cardId/months",
+          name: "card-month-details",
+          component: () => import("./views/CardMonthDetailsView.vue"),
+        },
+        {
           path: "records",
           name: "records",
           component: () => import("./views/RecordsView.vue"),

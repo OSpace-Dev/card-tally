@@ -13,6 +13,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     BudgetDialog: typeof import('./components/BudgetDialog.vue')['default']
     CardDialog: typeof import('./components/CardDialog.vue')['default']
+    CardYearChart: typeof import('./components/CardYearChart.vue')['default']
     ElAlert: typeof import('element-plus/es')['ElAlert']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCheckbox: typeof import('element-plus/es')['ElCheckbox']
@@ -39,6 +40,7 @@ declare module 'vue' {
     NumericKeypad: typeof import('./components/NumericKeypad.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    StartupScreen: typeof import('./components/StartupScreen.vue')['default']
     TransactionDialog: typeof import('./components/TransactionDialog.vue')['default']
     TrendChart: typeof import('./components/TrendChart.vue')['default']
   }

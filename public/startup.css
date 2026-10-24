@@ -1,0 +1,85 @@
+.startup-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: #f5f7f6;
+  color: #253331;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Microsoft YaHei",
+    sans-serif;
+  text-align: center;
+  padding: 24px;
+}
+.startup-screen img {
+  width: 76px;
+  height: 76px;
+  border-radius: 20px;
+  box-shadow: 0 12px 32px #16665b20;
+}
+.startup-screen h1 {
+  font-size: 26px;
+  letter-spacing: 2px;
+  margin: 8px 0 0;
+}
+.startup-screen p {
+  font-size: 13px;
+  color: #657570;
+  margin: 0;
+  line-height: 1.8;
+}
+.startup-screen .startup-progress {
+  height: 3px;
+  width: 100px;
+  border-radius: 3px;
+  background: #dce9e3;
+  overflow: hidden;
+  margin-top: 9px;
+}
+.startup-progress:after {
+  content: "";
+  display: block;
+  width: 45%;
+  height: 100%;
+  background: #16665b;
+  animation: startup-slide 1.2s ease-in-out infinite;
+}
+.startup-screen small {
+  font-size: 11px;
+  color: #78877e;
+  margin-top: 12px;
+}
+.startup-fallback {
+  animation: startup-help 0s 12s forwards;
+  visibility: hidden;
+}
+.startup-fallback a {
+  color: #16665b;
+  display: inline-block;
+  padding: 12px;
+}
+@keyframes startup-slide {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(330%);
+  }
+}
+@keyframes startup-help {
+  to {
+    visibility: visible;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .startup-progress:after {
+    animation: none;
+    width: 100%;
+  }
+}

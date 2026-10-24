@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { defineAsyncComponent, provide } from "vue";
 import zhCn from "element-plus/es/locale/lang/zh-cn";
+import StartupScreen from "./components/StartupScreen.vue";
 import { createLedger, ledgerKey } from "./composables/useLedger";
-const LoginView = defineAsyncComponent(() => import("./views/LoginView.vue"));
+const LoginView = defineAsyncComponent({
+  loader: () => import("./views/LoginView.vue"),
+  loadingComponent: StartupScreen,
+  delay: 0,
+});
 const TransactionDialog = defineAsyncComponent(
   () => import("./components/TransactionDialog.vue"),
 );
@@ -28,9 +33,7 @@ const {
 
 <template>
   <el-config-provider :locale="zhCn">
-    <div v-if="booting" class="boot-screen" aria-live="polite">
-      正在打开你的账本…
-    </div>
+    <StartupScreen v-if="booting" />
     <main v-else-if="reconnectError" class="connection-screen">
       <section class="panel">
         <h1>暂时无法连接账本</h1>

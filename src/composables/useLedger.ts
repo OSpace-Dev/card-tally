@@ -41,7 +41,10 @@ export function createLedger() {
   const router = useRouter(),
     route = useRoute();
   const active = computed<Page>({
-    get: () => (route.name as Page) || "overview",
+    get: () =>
+      route.name === "card-month-details"
+        ? "card-statistics"
+        : (route.name as Page) || "overview",
     set: (value) => {
       void router.push({ name: value });
     },

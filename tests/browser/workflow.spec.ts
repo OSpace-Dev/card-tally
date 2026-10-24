@@ -93,11 +93,11 @@ test('电脑与手机共用账本：建卡、记账、退款、预算、筛选�
     }
   }
   await page.locator('.sidebar').getByRole('button', { name: '各卡月度统计' }).click()
-  await expect(page.locator('.single-card-months article')).toHaveCount(12)
-  await expect(page.locator('.single-card-totals')).toContainText('123.45')
-  await expect(page.locator('.single-card-totals')).toContainText('23.45')
-  await expect(page.locator('.single-card-totals')).toContainText('100.00')
-  await page.getByRole('button', { name: /招商银行 尾号0123 .*123.45.*查看明细/ }).click()
+  await expect(page.locator('.year-chart-column')).toHaveCount(12)
+  await expect(page.locator('.monthly-card').first()).toContainText('123.45')
+  await expect(page.locator('.monthly-card').first()).toContainText('23.45')
+  await expect(page.locator('.monthly-card').first()).toContainText('100.00')
+  await page.getByRole('button', { name: /查看招商银行尾号0123当月消费明细/ }).click()
   await expect(page).toHaveURL(/\/records$/)
   await expect(page.locator('.desktop-table tbody tr')).toHaveCount(2)
   await phone.reload()
