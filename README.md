@@ -138,7 +138,7 @@ npm run test:e2e
 ```bash
 # 前端在本机构建，将 dist/ 内容上传到 Nginx 网站目录
 npm run build
-# 后端在服务器启动，数据保存在 card-ledger-data 命名卷
+# 后端在服务器启动，数据保存在 card-tally-data 命名卷
 docker compose up -d --build
 ```
 

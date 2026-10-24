@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Root cron example: /opt/card-ledger/deploy/backup.sh
+# Root cron example: /opt/card-tally/deploy/backup.sh
 # Briefly stops the API to copy a consistent SQLite data directory, including key.
 set -Eeuo pipefail
 umask 077
-ledger_project_dir="${LEDGER_PROJECT_DIR:-/opt/card-ledger}"
-ledger_backup_dir="${LEDGER_BACKUP_DIR:-/var/backups/card-ledger}"
+ledger_project_dir="${LEDGER_PROJECT_DIR:-/opt/card-tally}"
+ledger_backup_dir="${LEDGER_BACKUP_DIR:-/var/backups/card-tally}"
 install -d -m 0700 "$ledger_backup_dir"
 exec 9>"$ledger_backup_dir/.backup.lock"
 flock -n 9 || { echo 'Another backup is running' >&2; exit 1; }

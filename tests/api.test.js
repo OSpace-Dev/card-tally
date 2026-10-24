@@ -15,7 +15,7 @@ async function api(url, method = 'GET', body, authenticated = true) {
 }
 const transaction = (changes = {}) => ({ card_id: cardId, type: 'expense', amount: '120.35', date: '2026-03-15', category: '餐饮美食', merchant: '午餐', note: '', ...changes })
 before(async () => {
-  directory = mkdtempSync(path.join(tmpdir(), 'card-ledger-'))
+  directory = mkdtempSync(path.join(tmpdir(), 'card-tally-'))
   const instance = createApp({ dbPath: path.join(directory, 'test.sqlite'), accessKey: key })
   db = instance.db
   server = instance.app.listen(0, '127.0.0.1')

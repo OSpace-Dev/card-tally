@@ -1,7 +1,7 @@
 services:
   api:
     build: .
-    image: card-ledger-api:local
+    image: card-tally-api:local
     restart: unless-stopped
     init: true
     ports:
@@ -29,4 +29,4 @@ services:
         max-file: "3"
 volumes:
   ledger-data:
-    name: card-ledger-data
+    name: ${CARD_TALLY_DATA_VOLUME:-card-tally-data}
