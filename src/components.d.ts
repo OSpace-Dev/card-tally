@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppUpdateNotice: typeof import('./components/AppUpdateNotice.vue')['default']
     BudgetDialog: typeof import('./components/BudgetDialog.vue')['default']
     CardDialog: typeof import('./components/CardDialog.vue')['default']
     CardYearChart: typeof import('./components/CardYearChart.vue')['default']

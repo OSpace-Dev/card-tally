@@ -2,6 +2,7 @@
 import { defineAsyncComponent, provide } from "vue";
 import zhCn from "element-plus/es/locale/lang/zh-cn";
 import StartupScreen from "./components/StartupScreen.vue";
+import AppUpdateNotice from "./components/AppUpdateNotice.vue";
 import { createLedger, ledgerKey } from "./composables/useLedger";
 const LoginView = defineAsyncComponent({
   loader: () => import("./views/LoginView.vue"),
@@ -50,5 +51,6 @@ const {
       <CardDialog v-if="cardOpen" />
       <BudgetDialog v-if="budgetOpen" />
     </template>
+    <AppUpdateNotice />
   </el-config-provider>
 </template>

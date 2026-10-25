@@ -36,6 +36,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET" || url.origin !== self.location.origin)
     return;
+  if (url.pathname === "/version.json") return;
   if (url.pathname === "/api" || url.pathname.startsWith("/api/")) return;
   if (
     [

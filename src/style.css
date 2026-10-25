@@ -2846,3 +2846,58 @@ html {
     margin-right: 4px;
   }
 }
+
+.app-update-banner {
+  position: fixed;
+  z-index: 3000;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 24px;
+  width: calc(100% - 40px);
+  max-width: 520px;
+  padding: 16px 18px;
+  border: 1px solid #bcd2c7;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 35px #183e2926;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.app-update-banner strong {
+  font-size: 14px;
+}
+.app-update-banner p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #657570;
+  margin-top: 5px;
+}
+.app-update-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.app-update-actions .el-button {
+  min-height: 44px;
+}
+.app-update-actions .text-button {
+  min-height: 44px;
+}
+@media (max-width: 767px) {
+  .app-update-banner {
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    width: calc(100% - 24px);
+    padding: 14px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .app-update-actions {
+    margin-left: auto;
+  }
+  .app-update-banner > div:first-child {
+    flex: 1;
+    min-width: 160px;
+  }
+}
