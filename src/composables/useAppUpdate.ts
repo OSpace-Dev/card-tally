@@ -57,6 +57,9 @@ export function useAppUpdate(blocked: ComputedRef<boolean>) {
   }
   async function update() {
     if (blocked.value || updating.value || !available.value) return;
+    // A check may discover a newer release while this request is in flight.
+    // Pin this user action to one target for request, validation and navigation.
+    const targetBuildId = available.value;
     updating.value = true;
     error.value = "";
     const abort = new AbortController();
@@ -64,7 +67,7 @@ export function useAppUpdate(blocked: ComputedRef<boolean>) {
     try {
       // Confirm the HTML belongs to the announced build; files may still be uploading.
       const response = await fetch(
-        `/index.html?update=${encodeURIComponent(available.value)}`,
+        `/index.html?update=${encodeURIComponent(targetBuildId)}`,
         { cache: "no-store", signal: abort.signal },
       );
       if (!response.ok) throw new Error("入口页面尚未就绪");
@@ -75,12 +78,12 @@ export function useAppUpdate(blocked: ComputedRef<boolean>) {
       if (
         html
           .querySelector('meta[name="card-tally-build"]')
-          ?.getAttribute("content") !== available.value
+          ?.getAttribute("content") !== targetBuildId
       )
         throw new Error("版本文件仍在同步");
       if (blocked.value || disposed) return;
       const url = new URL(location.href);
-      url.searchParams.set("_app_version", available.value);
+      url.searchParams.set("_app_version", targetBuildId);
       location.replace(url.href);
     } catch {
       error.value = "暂时无法更新，请稍后重试。";

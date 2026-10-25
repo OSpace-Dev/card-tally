@@ -16,10 +16,18 @@ export default defineConfig({
       : {}),
     trace: "retain-on-failure",
   },
-  webServer: {
-    command: "node tests/browser-server.js",
-    url: "http://127.0.0.1:3099",
-    reuseExistingServer: false,
-    timeout: 20000,
-  },
+  webServer: [
+    {
+      command: "node tests/browser-server.js",
+      url: "http://127.0.0.1:3099",
+      reuseExistingServer: false,
+      timeout: 20000,
+    },
+    {
+      command: "node tests/update-server.js",
+      url: "http://127.0.0.1:3100",
+      reuseExistingServer: false,
+      timeout: 60000,
+    },
+  ],
 });
