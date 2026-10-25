@@ -2668,9 +2668,6 @@ html {
 .monthly-card-footer .text-button {
   font-size: 11px;
 }
-.monthly-card .category-track {
-  margin-top: 0;
-}
 .year-chart {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -2798,5 +2795,54 @@ html {
   }
   .card-statistics .single-card-heading h3 {
     font-size: 14px;
+  }
+}
+
+.monthly-card-grid {
+  align-items: start;
+}
+.inline-card-trend {
+  border-top: 1px solid #e5ebe8;
+  margin-top: 2px;
+  padding-top: 16px;
+}
+.inline-trend-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.inline-trend-heading h3 {
+  font-size: 13px;
+  font-weight: 600;
+}
+.inline-trend-heading > span {
+  color: #657570;
+  font-size: 11px;
+}
+.inline-card-trend .year-chart {
+  gap: 3px;
+}
+.inline-card-trend .year-chart-column {
+  padding-left: 1px;
+  padding-right: 1px;
+  font-size: 10px;
+}
+.monthly-card-footer .trend-toggle {
+  margin-left: auto;
+  margin-right: 10px;
+}
+@media (max-width: 767px) {
+  .inline-card-trend .year-chart-column {
+    font-size: 9px;
+  }
+  .monthly-card-footer {
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .monthly-card-footer .trend-toggle {
+    margin-right: 4px;
   }
 }

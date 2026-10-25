@@ -93,7 +93,9 @@ test('电脑与手机共用账本：建卡、记账、退款、预算、筛选�
     }
   }
   await page.locator('.sidebar').getByRole('button', { name: '各卡月度统计' }).click()
-  await expect(page.locator('.year-chart-column')).toHaveCount(12)
+  await expect(page.locator('.year-chart-column')).toHaveCount(0)
+  await page.locator('.monthly-card').first().getByRole('button', { name: '展开全年趋势 ↓', exact: true }).click()
+  await expect(page.locator('.monthly-card').first().locator('.year-chart-column')).toHaveCount(12)
   await expect(page.locator('.monthly-card').first()).toContainText('123.45')
   await expect(page.locator('.monthly-card').first()).toContainText('23.45')
   await expect(page.locator('.monthly-card').first()).toContainText('100.00')

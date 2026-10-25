@@ -13,22 +13,15 @@ const { month, monthLabel, showCardRecords } = useLedger();
 const router = useRouter();
 const year = computed(() => month.value.slice(0, 4));
 const { data, busy, error, load } = useCardReport(year);
-const selectedId = ref<number>(),
+const expandedIds = ref(new Set<number>()),
   metric = ref<Metric>("expense");
 const index = computed(() => Number(month.value.slice(5)) - 1);
-const selected = computed(() =>
-  data.value?.cards.find((card) => card.id === selectedId.value),
-);
+// Keep the card order stable when changing metrics; cards are not ranked against each other.
 const monthlyCards = computed(() =>
-  (data.value?.cards || [])
-    .map((card) => ({ card, current: card.months[index.value]! }))
-    .sort((a, b) => b.current[metric.value] - a.current[metric.value]),
-);
-const max = computed(() =>
-  Math.max(
-    1,
-    ...monthlyCards.value.map((item) => Math.abs(item.current[metric.value])),
-  ),
+  (data.value?.cards || []).map((card) => ({
+    card,
+    current: card.months[index.value]!,
+  })),
 );
 const totals = computed(() =>
   monthlyCards.value.reduce(
@@ -43,14 +36,21 @@ const totals = computed(() =>
 );
 const format = (n: number) => (metric.value === "count" ? `${n} 笔` : money(n));
 watch(data, (result) => {
-  if (result && !result.cards.some((card) => card.id === selectedId.value))
-    selectedId.value = result.cards[0]?.id;
+  if (result)
+    expandedIds.value = new Set(
+      [...expandedIds.value].filter((id) =>
+        result.cards.some((card) => card.id === id),
+      ),
+    );
 });
-function details(targetMonth = month.value) {
-  if (!selected.value) return;
+function toggleTrend(cardId: number) {
+  if (expandedIds.value.has(cardId)) expandedIds.value.delete(cardId);
+  else expandedIds.value.add(cardId);
+}
+function details(cardId: number, targetMonth = month.value) {
   void router.push({
     name: "card-month-details",
-    params: { cardId: selected.value.id },
+    params: { cardId },
     query: { year: year.value, month: targetMonth },
   });
 }
@@ -60,7 +60,7 @@ function details(targetMonth = month.value) {
     <div class="section-heading">
       <div>
         <h2>{{ monthLabel }} · 各卡当月情况</h2>
-        <p>先看这个月各张卡的消费，点击卡片查看全年趋势。</p>
+        <p>查看每张卡的当月记录，点“展开全年趋势”在卡片内查看。</p>
       </div>
       <el-select
         v-model="metric"
@@ -100,13 +100,14 @@ function details(targetMonth = month.value) {
           v-for="{ card, current } in monthlyCards"
           :key="card.id"
           class="monthly-card"
-          :class="{ selected: selectedId === card.id }"
+          :class="{ selected: expandedIds.has(card.id) }"
         >
           <button
             class="monthly-card-select"
             :aria-label="`选择${card.bank}尾号${card.last4}查看全年趋势`"
-            :aria-pressed="selectedId === card.id"
-            @click="selectedId = card.id"
+            :aria-expanded="expandedIds.has(card.id)"
+            :aria-controls="`card-trend-${card.id}`"
+            @click="toggleTrend(card.id)"
           >
             <span class="monthly-card-title"
               ><i :style="{ background: card.color }"></i
@@ -116,14 +117,6 @@ function details(targetMonth = month.value) {
               ></span
             ><strong>{{ format(current[metric]) }}</strong>
           </button>
-          <div class="category-track">
-            <span
-              :style="{
-                width: `${(Math.abs(current[metric]) / max) * 100}%`,
-                background: card.color,
-              }"
-            ></span>
-          </div>
           <dl class="month-card-values">
             <div>
               <dt>消费</dt>
@@ -144,6 +137,15 @@ function details(targetMonth = month.value) {
                 current.count ? "" : " · 本月无记录"
               }}</span
             ><button
+              class="text-button trend-toggle"
+              :aria-expanded="expandedIds.has(card.id)"
+              :aria-controls="`card-trend-${card.id}`"
+              @click="toggleTrend(card.id)"
+            >
+              {{
+                expandedIds.has(card.id) ? "收起全年趋势 ↑" : "展开全年趋势 ↓"
+              }}</button
+            ><button
               class="text-button"
               :aria-label="`查看${card.bank}尾号${card.last4}当月消费明细`"
               @click="showCardRecords(card.id)"
@@ -151,30 +153,32 @@ function details(targetMonth = month.value) {
               当月明细
             </button>
           </div>
+          <section
+            v-if="expandedIds.has(card.id)"
+            :id="`card-trend-${card.id}`"
+            class="inline-card-trend"
+            :aria-label="`${card.bank}尾号${card.last4}全年趋势`"
+          >
+            <div class="inline-trend-heading">
+              <h3>
+                {{ year }}年 ·
+                {{ metrics.find((m) => m.value === metric)?.label }}趋势
+              </h3>
+              <span>全年 {{ format(card[metric]) }}</span>
+            </div>
+            <CardYearChart
+              :months="card.months"
+              :metric="metric"
+              :selected="month"
+              :color="card.color"
+              @select="(target) => details(card.id, target)"
+            />
+            <button class="text-button" @click="details(card.id)">
+              查看逐月明细 →
+            </button>
+          </section>
         </article>
       </div>
-      <template v-if="selected"
-        ><div class="single-card-heading">
-          <div>
-            <h3>
-              {{ selected.bank }} · {{ selected.last4 }} · {{ year }}年趋势
-            </h3>
-            <p>
-              {{ selected.name }} · 全年{{
-                metrics.find((m) => m.value === metric)?.label
-              }}
-              {{ format(selected[metric]) }}
-            </p>
-          </div>
-          <button class="text-button" @click="details()">查看逐月明细 →</button>
-        </div>
-        <CardYearChart
-          :months="selected.months"
-          :metric="metric"
-          :selected="month"
-          :color="selected.color"
-          @select="details"
-      /></template>
       <p class="report-footnote">
         按自然月统计，净支出 = 消费 −
         退款，退款计入实际发生月份。顶部可切换月份，全年数字明细在二级页面查看。

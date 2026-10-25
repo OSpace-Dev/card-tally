@@ -78,8 +78,23 @@ test("手机统计先看各卡当月情况，图表进入二级明细且可刷�
     await expect(card).toContainText("¥60.00");
     await expect(card).toContainText("¥10.00");
     await expect(card).toContainText("¥50.00");
-    await card.getByRole("button", { name: /查看全年趋势/ }).click();
-    await expect(page.locator(".year-chart-column")).toHaveCount(12);
+    await expect(page.locator(".monthly-card .category-track")).toHaveCount(0);
+    await expect(page.locator(".inline-card-trend")).toHaveCount(0);
+    const toggle = card.getByRole("button", {
+      name: "展开全年趋势 ↓",
+      exact: true,
+    });
+    await toggle.click();
+    await expect(card.locator(".inline-card-trend")).toBeVisible();
+    await expect(
+      card.getByRole("button", { name: "收起全年趋势 ↑", exact: true }),
+    ).toHaveAttribute("aria-expanded", "true");
+    await card
+      .getByRole("button", { name: "收起全年趋势 ↑", exact: true })
+      .click();
+    await expect(card.locator(".inline-card-trend")).toHaveCount(0);
+    await toggle.click();
+    await expect(card.locator(".year-chart-column")).toHaveCount(12);
     expect(
       (await page.locator(".year-chart").boundingBox())!.height,
     ).toBeLessThan(180);
@@ -111,7 +126,7 @@ test("手机统计先看各卡当月情况，图表进入二级明细且可刷�
     await page
       .getByRole("button", { name: "← 返回各卡当月统计", exact: true })
       .click();
-    await expect(page.locator(".year-chart")).toBeVisible();
+    await expect(page.locator(".year-chart")).toHaveCount(0);
     await page.getByRole("button", { name: "下个月", exact: true }).click();
     await expect(
       page.getByRole("heading", {
@@ -128,5 +143,64 @@ test("手机统计先看各卡当月情况，图表进入二级明细且可刷�
     for (const id of transactions)
       await request.delete(`/api/transactions/${id}`, { headers });
     await request.delete(`/api/cards/${cardId}`, { headers });
+  }
+});
+
+test("多卡趋势分别就地展开，不折叠其他卡片或按金额重排", async ({
+  page,
+  request,
+}) => {
+  const headers = { Authorization: `Bearer ${key}` },
+    ids: number[] = [];
+  try {
+    for (const last4 of ["1231", "1232"]) {
+      const created = await request.post("/api/cards", {
+        headers,
+        data: {
+          bank: "就地展开测试银行",
+          name: "趋势卡",
+          last4,
+          color: "#16665b",
+        },
+      });
+      ids.push((await created.json()).id);
+    }
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.addInitScript(
+      (value) => localStorage.setItem("card-tally.access-key", value),
+      key,
+    );
+    await page.goto("/card-statistics");
+    const first = page.locator(".monthly-card").filter({ hasText: "1231" });
+    const second = page.locator(".monthly-card").filter({ hasText: "1232" });
+    await first
+      .getByRole("button", { name: "展开全年趋势 ↓", exact: true })
+      .click();
+    await expect(first.locator(".year-chart")).toBeVisible();
+    await second.getByRole("button", { name: /查看全年趋势/ }).click();
+    await expect(second.locator(".year-chart")).toBeVisible();
+    await expect(first.locator(".year-chart")).toBeVisible();
+    await expect(page.locator(".inline-card-trend")).toHaveCount(2);
+    const order = await page.locator(".monthly-card-title").allTextContents();
+    await page.locator('.statistics-metric .el-select__wrapper').click();
+    await page.getByRole("option", { name: "净支出", exact: true }).click();
+    expect(await page.locator(".monthly-card-title").allTextContents()).toEqual(
+      order,
+    );
+    await expect(second.locator(".inline-trend-heading")).toContainText(
+      "净支出趋势",
+    );
+    await second
+      .getByRole("button", { name: "收起全年趋势 ↑", exact: true })
+      .click();
+    await expect(first.locator(".year-chart")).toBeVisible();
+    await expect(second.locator(".year-chart")).toHaveCount(0);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  } finally {
+    for (const id of ids) await request.delete(`/api/cards/${id}`, { headers });
   }
 });
