@@ -10,6 +10,7 @@
     "dev": "concurrently -k -n api,web \"node --watch server/index.js\" \"vite --host 0.0.0.0\"",
     "build": "vue-tsc --noEmit && vite build",
     "analyze": "node scripts/analyze-bundle.mjs",
+    "screenshots": "npm run build && node scripts/capture-screenshots.mjs",
     "start": "node server/index.js",
     "start:lan": "node server/index.js --lan",
     "test:e2e": "playwright test",

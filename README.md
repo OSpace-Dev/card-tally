@@ -8,6 +8,33 @@ A self-hosted credit card expense tracker with quick mobile entry and monthly sp
 
 技术栈：Vue 3 + TypeScript + Element Plus + Vite，Node.js 24 + Express 5 + Node 内置 SQLite。无需另装数据库，不依赖第三方云服务或在线字体。
 
+## 界面预览
+
+以下截图均使用**虚构的演示数据**，展示 2026 年 10 月的消费、退款与预算，不包含真实账本、完整卡号或访问密钥。手机图为浏览器移动视口截图。
+
+电脑月度总览：消费、退款、预算、近六月趋势及分类分布。
+
+![电脑端月度总览，含多卡汇总、预算及分类统计](docs/screenshots/desktop-overview.png)
+
+手机端可直接查看各卡当月情况，在卡片内展开全年趋势，或用数字键盘快速记一笔。
+
+<p align="center">
+  <img src="docs/screenshots/mobile-card-statistics.png" alt="手机端各卡当月消费、退款和净支出" width="30%" />
+  <img src="docs/screenshots/mobile-card-trend.png" alt="手机端在当前信用卡内就地展开全年趋势" width="30%" />
+  <img src="docs/screenshots/mobile-quick-entry.png" alt="手机极简记账，银行卡选择、数字键盘与保存按钮" width="30%" />
+</p>
+
+<details>
+<summary>查看电脑端消费明细截图</summary>
+
+支持按卡片、类型、分类筛选，搜索商户和备注，并导出 CSV。
+
+![电脑端消费与退款明细，支持筛选、搜索及 CSV 导出](docs/screenshots/desktop-transactions.png)
+
+</details>
+
+截图更新方法见 [截图生成说明](docs/screenshots/README.md)。
+
 ## 已实现功能
 
 - 信用卡：新增、修改、删除，保存银行、卡片名称、尾号四位和颜色；内置 27 家银行，按国有大型银行、全国性股份制银行、城市商业银行及其他银行分组，支持电脑搜索、手机默认点选；未收录的银行可切换手动输入，并复用已使用的其他银行。
